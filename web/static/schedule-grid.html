@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#7C4DFF">
+    <title>ปฏิทิน - TeachMap</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="manifest" href="/manifest.json">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>TeachMap</h1>
+            <div class="header-buttons">
+                <button class="btn btn-secondary" onclick="location.href='/teacher-dashboard.html'">🏠
+                    Dashboard</button>
+                <button class="btn btn-secondary" onclick="location.href='/teacher'">📋 รายการ</button>
+                <button class="btn btn-secondary active" onclick="location.href='/schedule-grid.html'">📅
+                    ปฏิทิน</button>
+                <button class="btn btn-secondary" onclick="location.href='/admin.html'">👥 ผู้ใช้</button>
+                <button class="btn btn-secondary" onclick="location.href='/profile.html'">⚙️ โปรไฟล์</button>
+                <button class="btn btn-danger" onclick="logout()">ออกจากระบบ</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Teacher Profile Card -->
+            <div class="card" style="margin-bottom: 20px; padding: 20px;">
+                <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                    <!-- Profile Picture - Left -->
+                    <div style="flex-shrink: 0;">
+                        <img id="teacherProfilePic" src="/images/profiles/default-avatar.png" alt="Profile Picture"
+                            style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary);"
+                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22%3E%3Ccircle fill=%22%23e0e0e0%22 cx=%2240%22 cy=%2240%22 r=%2240%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2230%22 fill=%22%23999%22%3E👤%3C/text%3E%3C/svg%3E';">
+                    </div>
+
+                    <!-- Teacher Info - Right -->
+                    <div style="flex: 1; min-width: 200px;">
+                        <h3 style="margin: 0 0 8px 0; color: var(--primary);" id="teacherName">กำลังโหลด...
+                        </h3>
+                        <div style="display: flex; flex-wrap: wrap; gap: 15px; font-size: 14px; color: var(--text);">
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <span>📚</span>
+                                <span id="teacherSubject">-</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <span>📍</span>
+                                <span>ห้อง <span id="teacherRoom">-</span></span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <span>🕒</span>
+                                <span id="teacherContact">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>ตารางสอน (ปฏิทิน)</h2>
+
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>กำลังโหลด...</p>
+            </div>
+
+            <div class="schedule-grid-container" id="gridContainer">
+                <!-- Grid will be rendered here -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                localStorage.removeItem('user');
+                localStorage.removeItem('role');
+                window.location.href = '/';
+            } catch (error) {
+                window.location.href = '/';
+            }
+        }
+
+        function checkAuth(requiredRole) {
+            const role = localStorage.getItem('role');
+            if (!role || (requiredRole && role !== requiredRole)) {
+                window.location.href = '/';
+                return false;
+            }
+            return true;
+        }
+
+        function getCurrentUser() {
+            const userStr = localStorage.getItem('user');
+            return userStr ? JSON.parse(userStr) : null;
+        }
+    </script>
+    <script src="/js/schedule-grid.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!checkAuth('teacher')) return;
+
+            const loading = document.getElementById('loading');
+            loading.classList.remove('hidden');
+
+            try {
+                // Load teacher profile
+                const profileResponse = await fetch('/api/profile');
+                if (profileResponse.ok) {
+                    const teacher = await profileResponse.json();
+                    document.getElementById('teacherName').textContent = teacher.name || 'อาจารย์';
+                    document.getElementById('teacherSubject').textContent = teacher.subject || '-';
+                    document.getElementById('teacherContact').textContent = teacher.contact || '-';
+
+                    if (teacher.profile_picture) {
+                        document.getElementById('teacherProfilePic').src = `/images/profiles/${teacher.profile_picture}`;
+                    }
+                }
+
+                // Load schedule
+                const response = await fetch('/api/schedule');
+                const data = await response.json();
+
+                console.log('Schedule data:', data);
+                
+                // Aggregate unique classrooms from schedule
+                const classrooms = new Set();
+                data.forEach(item => {
+                    if (item.classroom) {
+                        classrooms.add(item.classroom);
+                    }
+                });
+
+                // Display classrooms
+                if (classrooms.size > 0) {
+                    document.getElementById('teacherRoom').textContent = Array.from(classrooms).sort().join(', ');
+                } else {
+                    document.getElementById('teacherRoom').textContent = '-';
+                }
+
+                renderScheduleGrid(data, 'gridContainer');
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+            } finally {
+                loading.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>

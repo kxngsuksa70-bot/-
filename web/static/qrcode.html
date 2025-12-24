@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code - TeachMap PWA</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 32px;
+        }
+
+        .qr-container {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            display: inline-block;
+        }
+
+        #qrcode {
+            width: 280px;
+            height: 280px;
+            margin: 0 auto;
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        #qrcode img {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .url-display {
+            background: #f0f2f5;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            word-break: break-all;
+        }
+
+        .url-label {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .url-text {
+            color: #333;
+            font-size: 16px;
+            font-family: monospace;
+        }
+
+        .instructions {
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .instructions h3 {
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .status.online {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.local {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 32px 24px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            #qrcode {
+                width: 240px;
+                height: 240px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📱 สแกน QR Code</h1>
+        <p class="subtitle">เพื่อเข้าถึง TeachMap PWA</p>
+
+        <div id="status-container"></div>
+
+        <div class="qr-container">
+            <div id="qrcode">
+                <img id="qr-image" src="/api/qrcode-image" alt="QR Code">
+            </div>
+        </div>
+
+        <div class="url-display">
+            <div class="url-label">🔗 URL สำหรับเข้าถึงเว็บไซต์</div>
+            <div class="url-text" id="public-url">กำลังโหลด...</div>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 วิธีใช้งาน</h3>
+            <ol>
+                <li>เปิดแอปกล้องบนมือถือของคุณ</li>
+                <li>เล็งกล้องไปที่ QR Code ด้านบน</li>
+                <li>แตะที่ลิงก์ที่แสดงบนหน้าจอ</li>
+                <li>เข้าสู่ระบบด้วย Username และ Password</li>
+            </ol>
+        </div>
+
+        <div class="btn-group">
+            <a href="/" class="btn btn-primary">กลับหน้าหลัก</a>
+            <button class="btn btn-secondary" onclick="downloadQR()">💾 บันทึก QR Code</button>
+        </div>
+    </div>
+
+    <script>
+        // Load public URL
+        async function loadPublicURL() {
+            try {
+                const response = await fetch('/api/public-url');
+                const data = await response.json();
+
+                document.getElementById('public-url').textContent = data.url;
+
+                // Update status
+                const statusContainer = document.getElementById('status-container');
+                if (data.has_ngrok) {
+                    statusContainer.innerHTML = '<span class="status online">🌐 เข้าถึงได้จากทุกที่ผ่านอินเทอร์เน็ต</span>';
+                } else {
+                    statusContainer.innerHTML = '<span class="status local">📶 เข้าถึงได้เฉพาะในเครือข่ายเดียวกัน</span>';
+                }
+            } catch (error) {
+                console.error('Error loading URL:', error);
+                document.getElementById('public-url').textContent = 'ไม่สามารถโหลด URL ได้';
+            }
+        }
+
+        // Download QR code
+        async function downloadQR() {
+            try {
+                const response = await fetch('/api/qrcode-image');
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'teachmap-qrcode.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Error downloading QR code:', error);
+                alert('ไม่สามารถดาวน์โหลด QR Code ได้');
+            }
+        }
+
+        // Load on page load
+        loadPublicURL();
+
+        // Refresh QR code every 30 seconds (in case ngrok URL changes)
+        setInterval(() => {
+            document.getElementById('qr-image').src = '/api/qrcode-image?' + new Date().getTime();
+            loadPublicURL();
+        }, 30000);
+    </script>
+</body>
+
+</html>

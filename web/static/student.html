@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#7C4DFF">
+    <title>ค้นหาตารางสอน - TeachMap</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="manifest" href="/manifest.json">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>TeachMap</h1>
+            <div class="header-buttons">
+                <button class="btn btn-secondary active" onclick="location.href='/student'">🔍 ค้นหา</button>
+                <button class="btn btn-secondary" onclick="location.href='/student-dashboard.html'">📊
+                    Dashboard</button>
+                <button class="btn btn-secondary" onclick="showStudentGuide()">📖 คู่มือ</button>
+                <button class="btn btn-danger" onclick="logout()">ออกจากระบบ</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <h2 class="mb-20">ค้นหาตารางสอน</h2>
+
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="ค้นหา อาจารย์, วิชา, ห้องเรียน...">
+                <span class="search-icon" onclick="applyFilters()">🔍</span>
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label>วัน:</label>
+                    <select id="dayFilter" onchange="applyFilters()">
+                        <option value="all">ทั้งหมด</option>
+                        <option value="Mon">จันทร์</option>
+                        <option value="Tue">อังคาร</option>
+                        <option value="Wed">พุธ</option>
+                        <option value="Thu">พฤหัสบดี</option>
+                        <option value="Fri">ศุกร์</option>
+                        <option value="Sat">เสาร์</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>เวลา:</label>
+                    <select id="timeFilter" onchange="applyFilters()">
+                        <option value="all">ทั้งหมด</option>
+                        <option value="08:00-10:00">08:30-10:30</option>
+                        <option value="10:00-12:00">10:30-12:30</option>
+                        <option value="12:00-14:00">12:30-14:30</option>
+                        <option value="14:00-16:00">14:30-16:30</option>
+                        <option value="16:00-18:00">16:30-18:30</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>กำลังโหลด...</p>
+            </div>
+
+            <div id="teachersList" class="cards-container"></div>
+        </main>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <!-- Socket.IO for real-time updates -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="/js/student.js"></script>
+</body>
+
+</html>

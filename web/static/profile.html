@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#7C4DFF">
+    <title>โปรไฟล์ - TeachMap</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>TeachMap</h1>
+            <div class="header-buttons">
+                <button class="btn btn-secondary" onclick="location.href='/teacher-dashboard.html'">🏠
+                    Dashboard</button>
+                <button class="btn btn-secondary" onclick="location.href='/teacher'">📋 รายการ</button>
+                <button class="btn btn-secondary" onclick="location.href='/schedule-grid.html'">📅 ปฏิทิน</button>
+                <button class="btn btn-secondary" onclick="location.href='/admin.html'">👥 ผู้ใช้</button>
+                <button class="btn btn-secondary active" onclick="location.href='/profile.html'">⚙️ โปรไฟล์</button>
+                <button class="btn btn-danger" onclick="logout()">ออกจากระบบ</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <h2>แก้ไขโปรไฟล์</h2>
+
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>กำลังโหลด...</p>
+            </div>
+
+            <div class="card" style="max-width: 600px; margin: 20px auto;">
+                <form id="profileForm" style="display: flex; flex-direction: column; gap: 20px;">
+                    <!-- Profile Picture -->
+                    <div class="form-group" style="text-align: center;">
+                        <label>รูปโปรไฟล์</label>
+                        <div style="margin: 15px 0;">
+                            <img id="profilePicPreview" src="/images/profiles/default-avatar.png" alt="Profile Picture"
+                                style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary);"
+                                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22150%22%3E%3Ccircle fill=%22%23e0e0e0%22 cx=%2275%22 cy=%2275%22 r=%2275%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2250%22 fill=%22%23999%22%3E👤%3C/text%3E%3C/svg%3E';">
+                        </div>
+                        <input type="file" id="profilePicInput" accept="image/*" style="display: none;"
+                            onchange="previewProfilePic(event)">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('profilePicInput').click()">
+                            📷 เลือกรูปภาพ
+                        </button>
+                        <p style="font-size: 12px; color: var(--text-sec); margin-top: 8px;">
+                            รองรับ: JPG, PNG (ขนาดไม่เกิน 2MB)
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ชื่อผู้ใช้</label>
+                        <input type="text" id="username" style="background: var(--input-bg);">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ชื่อ-นามสกุล</label>
+                        <input type="text" id="name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>แผนกวิชา</label>
+                        <input type="text" id="subject">
+                    </div>
+
+                    <div class="form-group">
+                        <label>เบอร์ติดต่อ</label>
+                        <input type="text" id="contact" placeholder="เช่น 089-000-1234">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ห้องพัก</label>
+                        <input type="text" id="room" placeholder="เช่น ห้อง 927">
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">💾 บันทึก</button>
+                        <button type="button" class="btn btn-secondary" style="flex: 1;"
+                            onclick="location.href='/teacher-dashboard.html'">ยกเลิก</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Preview profile picture
+        function previewProfilePic(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Check file size (2MB max)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('ไฟล์ใหญ่เกินไป กรุณาเลือกไฟล์ขนาดไม่เกิน 2MB');
+                    event.target.value = '';
+                    return;
+                }
+
+                // Preview image
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('profilePicPreview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                localStorage.removeItem('user');
+                localStorage.removeItem('role');
+                window.location.href = '/';
+            } catch (error) {
+                window.location.href = '/';
+            }
+        }
+
+        function checkAuth(requiredRole) {
+            const role = localStorage.getItem('role');
+            if (!role || (requiredRole && role !== requiredRole)) {
+                window.location.href = '/';
+                return false;
+            }
+            return true;
+        }
+
+        function getCurrentUser() {
+            const userStr = localStorage.getItem('user');
+            return userStr ? JSON.parse(userStr) : null;
+        }
+    </script>
+    <script src="/js/profile.js"></script>
+</body>
+
+</html>

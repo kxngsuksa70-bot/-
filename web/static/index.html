@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#7C4DFF">
+    <title>TeachMap - ระบบจัดการตารางสอน</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/guide-popup.css">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/images/icon-192.png">
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo">
+                <h1>TeachMap</h1>
+                <p>ระบบจัดการตารางสอน</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="text" id="username" placeholder="ชื่อผู้ใช้" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" id="password" placeholder="รหัสผ่าน" required>
+                </div>
+
+                <button type="submit" class="btn-primary">เข้าสู่ระบบ</button>
+
+                <div id="errorMessage" class="error-message" style="display: none;"></div>
+            </form>
+
+            <div class="demo-info">
+                <p><small>dbt/1234 </small></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed'));
+        }
+    </script>
+    <script src="/js/auth.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,213 @@
+
+const dayMap = {
+    'Mon': 'จันทร์',
+    'Tue': 'อังคาร',
+    'Wed': 'พุธ',
+    'Thu': 'พฤหัสบดี',
+    'Fri': 'ศุกร์',
+    'Sat': 'เสาร์'
+};
+
+const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const sorted = mySchedule.sort((a, b) => {
+    const dayDiff = dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day);
+    if (dayDiff !== 0) return dayDiff;
+    return a.start.localeCompare(b.start);
+});
+
+if (sorted.length === 0) {
+    scheduleBody.innerHTML = '<tr><td colspan="6" class="text-center">ยังไม่มีตารางสอน คลิก "เพิ่มวิชา" เพื่อเริ่มต้น</td></tr>';
+    return;
+}
+
+scheduleBody.innerHTML = sorted.map(s => `
+        <tr class="schedule-row">
+            <td>${dayMap[s.day] || s.day}</td>
+            <td>${s.start} - ${s.end} (${s.duration}h)</td>
+            <td>${s.subject}</td>
+            <td>${s.course_code || '-'}</td>
+            <td>${s.classroom || '-'}</td>
+            <td>
+                <button class="btn btn-secondary" style="padding: 6px 12px; margin-right: 5px;" onclick="editSchedule(${s.id})">แก้ไข</button>
+                <button class="btn btn-danger" style="padding: 6px 12px;" onclick="deleteSchedule(${s.id})">ลบ</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Open add dialog
+function openAddDialog() {
+    showScheduleDialog();
+}
+
+// Edit schedule
+function editSchedule(id) {
+    const schedule = mySchedule.find(s => s.id === id);
+    if (schedule) {
+        showScheduleDialog(schedule);
+    }
+}
+
+// Show schedule dialog
+function showScheduleDialog(existing = null) {
+    const dayMapThai = {
+        'Mon': 'จันทร์',
+        'Tue': 'อังคาร',
+        'Wed': 'พุธ',
+        'Thu': 'พฤหัสบดี',
+        'Fri': 'ศุกร์',
+        'Sat': 'เสาร์'
+    };
+
+    const dayMapEn = {
+        'จันทร์': 'Mon',
+        'อังคาร': 'Tue',
+        'พุธ': 'Wed',
+        'พฤหัสบดี': 'Thu',
+        'ศุกร์': 'Fri',
+        'เสาร์': 'Sat'
+    };
+
+    const isEdit = existing !== null;
+    const title = isEdit ? 'แก้ไขตารางสอน' : 'เพิ่มตารางสอน';
+
+    const modal = `
+        <div id="scheduleModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; overflow-y: auto;">
+            <div style="background: var(--card-bg); border-radius: 12px; max-width: 500px; width: 100%; padding: 30px;">
+                <h2 style="color: var(--primary); margin-bottom: 20px;">${title}</h2>
+                
+                <form id="scheduleForm" style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="form-group">
+                        <label>วัน</label>
+                        <select id="dayInput" style="width: 100%; padding: 12px; background: var(--input-bg); border: none; border-radius: 8px; color: var(--text);">
+                            ${Object.keys(dayMapThai).map(en => `
+                                <option value="${en}" ${existing && existing.day === en ? 'selected' : ''}>
+                                    ${dayMapThai[en]}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>เวลาเริ่ม</label>
+                        <input type="time" id="startInput" value="${existing ? existing.start : '08:00'}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>เวลาสิ้นสุด</label>
+                        <input type="time" id="endInput" value="${existing ? existing.end : '10:00'}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>ระยะเวลา (ชั่วโมง)</label>
+                        <input type="number" step="0.5" id="durationInput" value="${existing ? existing.duration : '2'}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>ชื่อวิชา</label>
+                        <input type="text" id="subjectInput" value="${existing ? existing.subject : ''}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>รหัสวิชา</label>
+                        <input type="text" id="courseCodeInput" value="${existing ? existing.course_code || '' : ''}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>ห้องเรียน</label>
+                        <input type=" text" id="classroomInput" value="${existing ? existing.classroom || '' : ''}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>สี</label>
+                        <input type="color" id="colorInput" value="${existing ? existing.color || '#4285F4' : '#4285F4'}">
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">บันทึก</button>
+                        <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeModal()">ยกเลิก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modal);
+
+    // Handle form submit
+    document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const data = {
+            day: document.getElementById('dayInput').value,
+            start_time: document.getElementById('startInput').value,
+            end_time: document.getElementById('endInput').value,
+            duration: parseFloat(document.getElementById('durationInput').value),
+            subject: document.getElementById('subjectInput').value,
+            course_code: document.getElementById('courseCodeInput').value,
+            classroom: document.getElementById('classroomInput').value,
+            color: document.getElementById('colorInput').value
+        };
+
+        try {
+            let response;
+            if (isEdit) {
+                response = await fetch(`${API_BASE}/api/schedule/${existing.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+            } else {
+                response = await fetch(`${API_BASE}/api/schedule`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                closeModal();
+                await loadSchedule();
+            } else {
+                alert('เกิดข้อผิดพลาด: ' + (result.error || 'ไม่สามารถบันทึกได้'));
+            }
+        } catch (error) {
+            console.error('Error saving schedule:', error);
+            alert('เกิดข้อผิดพลาดในการบันทึก');
+        }
+    });
+}
+
+// Close modal
+function closeModal() {
+    const modal = document.getElementById('scheduleModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Delete schedule
+async function deleteSchedule(id) {
+    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบรายการนี้?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/api/schedule/${id}`, {
+            method: 'DELETE'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            await loadSchedule();
+        } else {
+            alert('เกิดข้อผิดพลาด: ' + (result.error || 'ไม่สามารถลบได้'));
+        }
+    } catch (error) {
+        console.error('Error deleting schedule:', error);
+        alert('เกิดข้อผิดพลาดในการลบ');
+    }
+}

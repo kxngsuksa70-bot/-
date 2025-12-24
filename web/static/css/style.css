@@ -1,0 +1,508 @@
+/* TeachMap PWA - Modern Dark Theme with Purple Accent */
+
+:root {
+    --primary: #7C4DFF;
+    --primary-dark: #6200EA;
+    --bg: #1a1a1a;
+    --card-bg: #2a2a2a;
+    --text: #ffffff;
+    --text-sec: #b0b0b0;
+    --error: #CF6679;
+    --success: #4CAF50;
+    --input-bg: #333333;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+/* Login Page */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.login-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo h1 {
+    font-size: 32px;
+    color: var(--primary);
+    margin-bottom: 5px;
+}
+
+.logo p {
+    color: var(--text-sec);
+    font-size: 14px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text);
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--input-bg);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--bg);
+}
+
+.role-selector {
+    display: flex;
+    gap: 10px;
+}
+
+.role-btn {
+    flex: 1;
+    padding: 12px;
+    background: var(--input-bg);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    color: var(--text-sec);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+
+.role-btn:hover {
+    background: var(--bg);
+}
+
+.role-btn.active {
+    background: var(--primary);
+    color: var(--text);
+    border-color: var(--primary);
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: var(--primary);
+    border: none;
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(124, 77, 255, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.error-message {
+    background: var(--error);
+    color: var(--text);
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.demo-info {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--text-sec);
+}
+
+/* Main App Layout */
+.app-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    background: var(--card-bg);
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header h1 {
+    font-size: 24px;
+    color: var(--primary);
+}
+
+.header-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-secondary {
+    background: var(--input-bg);
+    color: var(--text);
+}
+
+.btn-secondary:hover {
+    background: var(--bg);
+}
+
+.btn-danger {
+    background: var(--error);
+    color: var(--text);
+}
+
+.btn-danger:hover {
+    background: #B00020;
+}
+
+.main-content {
+    flex: 1;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Search Bar */
+.search-container {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-container input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 16px;
+}
+
+.search-container input:focus {
+    outline: none;
+}
+
+.search-icon {
+    font-size: 20px;
+    color: var(--primary);
+    cursor: pointer;
+}
+
+/* Filters */
+.filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-group label {
+    color: var(--text);
+    font-weight: 500;
+}
+
+.filter-group select {
+    padding: 8px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--input-bg);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* Cards */
+.cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 4px solid var(--primary);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+.card-subtitle {
+    font-size: 14px;
+    color: var(--text-sec);
+    margin-bottom: 4px;
+}
+
+.card-info {
+    font-size: 13px;
+    color: var(--primary);
+    margin-top: 8px;
+}
+
+/* Schedule Table */
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.schedule-table th {
+    background: var(--card-bg);
+    padding: 12px;
+    text-align: left;
+    color: var(--text);
+    font-weight: 600;
+    border-bottom: 2px solid var(--input-bg);
+}
+
+.schedule-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--input-bg);
+}
+
+.schedule-row {
+    transition: background 0.2s;
+}
+
+.schedule-row:hover {
+    background: var(--card-bg);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .header {
+        padding: 15px 20px;
+    }
+
+    .header h1 {
+        font-size: 20px;
+    }
+
+    .main-content {
+        padding: 20px;
+    }
+
+    .login-card {
+        padding: 30px;
+    }
+
+    .filters {
+        flex-direction: column;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+
+    .filter-group select {
+        flex: 1;
+    }
+}
+
+/* Loading Spinner */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-sec);
+}
+
+.spinner {
+    border: 3px solid var(--input-bg);
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Utilities */
+.hidden {
+    display: none;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+/* Schedule Grid View */
+.schedule-grid-container {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    overflow-x: auto;
+}
+
+.schedule-grid {
+    display: grid;
+    grid-template-columns: 80px repeat(6, 1fr);
+    gap: 1px;
+    background: var(--input-bg);
+    min-width: 800px;
+}
+
+.grid-header {
+    background: var(--card-bg);
+    padding: 15px 10px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.grid-time-label {
+    background: var(--card-bg);
+    padding: 10px;
+    text-align: left;
+    color: var(--text-sec);
+    font-size: 12px;
+}
+
+.grid-cell {
+    background: var(--bg);
+    padding: 5px;
+    min-height: 60px;
+    position: relative;
+}
+
+.grid-class {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    border-radius: 6px;
+    padding: 8px;
+    color: white;
+    font-size: 11px;
+    cursor: pointer;
+    pointer-events: auto;
+    /* Ensure clickable */
+    z-index: 10;
+    /* Above other elements */
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.grid-class:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 50;
+    /* Higher on hover */
+    filter: brightness(1.1);
+}
+
+.grid-class-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Navigation Active State */
+.header-buttons .btn-secondary.active {
+    background: var(--primary);
+    color: var(--text);
+}
+
+/* Mobile Nav */
+@media (max-width: 768px) {
+    .header-buttons {
+        gap: 5px;
+    }
+
+    .header-buttons .btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}

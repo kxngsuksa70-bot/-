@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#7C4DFF">
+    <title>ตารางสอน - TeachMap</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="manifest" href="/manifest.json">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>TeachMap</h1>
+            <div class="header-buttons">
+                <button class="btn btn-secondary" onclick="location.href='/teacher-dashboard.html'">🏠
+                    Dashboard</button>
+                <button class="btn btn-secondary active" onclick="location.href='/teacher'">📋 รายการ</button>
+                <button class="btn btn-secondary" onclick="location.href='/schedule-grid.html'">📅 ปฏิทิน</button>
+                <button class="btn btn-secondary" onclick="location.href='/admin.html'">👥 ผู้ใช้</button>
+                <button class="btn btn-secondary" onclick="location.href='/profile.html'">⚙️ โปรไฟล์</button>
+                <button class="btn btn-danger" onclick="logout()">ออกจากระบบ</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>ตารางสอนของฉัน</h2>
+                <button class="btn btn-primary" onclick="openAddDialog()">+ เพิ่มวิชา</button>
+            </div>
+
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>กำลังโหลด...</p>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="schedule-table" id="scheduleTable">
+                    <thead>
+                        <tr>
+                            <th>วัน</th>
+                            <th>เวลา</th>
+                            <th>วิชา</th>
+                            <th>รหัสวิชา</th>
+                            <th>ห้อง</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleBody">
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                localStorage.removeItem('user');
+                localStorage.removeItem('role');
+                window.location.href = '/';
+            } catch (error) {
+                window.location.href = '/';
+            }
+        }
+
+        function checkAuth(requiredRole) {
+            const role = localStorage.getItem('role');
+            if (!role || (requiredRole && role !== requiredRole)) {
+                window.location.href = '/';
+                return false;
+            }
+            return true;
+        }
+
+        function getCurrentUser() {
+            const userStr = localStorage.getItem('user');
+            return userStr ? JSON.parse(userStr) : null;
+        }
+    </script>
+    <script src="/js/teacher.js"></script>
+</body>
+
+</html>

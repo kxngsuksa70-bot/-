@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#7C4DFF">
+    <title>Dashboard - TeachMap</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="manifest" href="/manifest.json">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>TeachMap</h1>
+            <div class="header-buttons">
+                <button class="btn btn-secondary" onclick="location.href='/student'">🔍 ค้นหา</button>
+                <button class="btn btn-secondary active" onclick="location.href='/student-dashboard.html'">📊
+                    Dashboard</button>
+                <button class="btn btn-secondary" onclick="showStudentGuide()">📖 คู่มือ</button>
+                <button class="btn btn-danger" onclick="logout()">ออกจากระบบ</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div id="welcomeMessage" style="margin-bottom: 20px;">
+                <h2>ยินดีต้อนรับ, <span id="studentName">นักศึกษา</span></h2>
+            </div>
+
+            <h3 style="margin-bottom: 15px;">ตารางเรียนทั้งหมด</h3>
+
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>กำลังโหลด...</p>
+            </div>
+
+            <div id="scheduleByDay"></div>
+        </main>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/student-dashboard.js"></script>
+</body>
+
+</html>

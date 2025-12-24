@@ -1,0 +1,4 @@
+# Railway Procfile
+# Defines how Railway should start your application
+
+web: gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT web.app:app
