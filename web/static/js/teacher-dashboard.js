@@ -36,15 +36,20 @@ async function loadTeacherProfile() {
 
             // Load profile picture
             const profilePicElement = document.getElementById('teacherProfilePic');
+            console.log('🔍 DEBUG: teacher.profile_picture =', teacher.profile_picture);
+
             if (teacher.profile_picture) {
                 // Check if it's a Supabase Storage URL (starts with https://)
                 if (teacher.profile_picture.startsWith('http://') || teacher.profile_picture.startsWith('https://')) {
+                    console.log('✅ Using Supabase URL:', teacher.profile_picture);
                     profilePicElement.src = teacher.profile_picture;
                 } else {
+                    console.log('⚠️ Using default avatar (local path detected):', teacher.profile_picture);
                     // Local path (old data) - show default avatar
                     profilePicElement.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(teacher.name || 'Teacher') + '&size=200&background=4285F4&color=fff';
                 }
             } else {
+                console.log('⚠️ No profile picture - using default avatar');
                 // No profile picture - show default avatar
                 profilePicElement.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(teacher.name || 'Teacher') + '&size=200&background=4285F4&color=fff';
             }
