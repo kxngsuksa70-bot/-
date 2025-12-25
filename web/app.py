@@ -590,17 +590,14 @@ def api_teacher_profile():
         
         # Update profile picture in database if uploaded
         if result and profile_picture_filename:
-            conn = db.get_connection()
-            if conn:
-                try:
-                    cursor = conn.cursor()
-                    cursor.execute("UPDATE teachers SET profile_picture = %s WHERE id = %s", 
-                                 (profile_picture_filename, teacher_id))
-                    conn.commit()
-                    cursor.close()
-                    conn.close()
-                except Exception as e:
-                    print(f"Error updating profile picture: {e}")
+            try:
+                client = db.get_supabase_client()
+                client.table('teachers').update({
+                    'profile_picture': profile_picture_filename
+                }).eq('id', teacher_id).execute()
+            except Exception as e:
+                print(f"Error updating profile picture: {e}")
+
         
         if result:
             return jsonify({
