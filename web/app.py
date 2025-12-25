@@ -247,6 +247,62 @@ def api_delete_schedule(schedule_id):
         return jsonify({'success': True, 'message': 'Schedule deleted'})
     return jsonify({'success': False, 'error': 'Failed to delete schedule'}), 400
 
+# Profile Picture Upload (Supabase Storage)
+@app.route('/api/upload_profile_picture', methods=['POST'])
+@role_required('teacher')
+def api_upload_profile_picture():
+    """Upload profile picture to Supabase Storage"""
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'error': 'No file provided'}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'success': False, 'error': 'No file selected'}), 400
+    
+    # Validate file type
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+    if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
+        return jsonify({'success': False, 'error': 'Invalid file type. Allowed: png, jpg, jpeg, gif, webp'}), 400
+    
+    try:
+        teacher_id = current_user.data.get('id')
+        
+        # Generate unique filename
+        import uuid
+        import os as os_module
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        filename = f"teacher_{teacher_id}_{uuid.uuid4().hex}.{ext}"
+        
+        # Read file content
+        file_content = file.read()
+        
+        # Upload to Supabase Storage
+        client = db.get_supabase_client()
+        storage_response = client.storage.from_('profile-pictures').upload(
+            path=filename,
+            file=file_content,
+            file_options={"content-type": file.content_type}
+        )
+        
+        # Get public URL
+        public_url = client.storage.from_('profile-pictures').get_public_url(filename)
+        
+        # Update teacher profile with new picture URL
+        client.table('teachers').update({
+            'profile_picture': public_url
+        }).eq('id', teacher_id).execute()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Profile picture uploaded successfully',
+            'url': public_url
+        })
+        
+    except Exception as e:
+        print(f"Error uploading profile picture: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/api/schedule/<int:schedule_id>/color', methods=['PUT'])
 @login_required
 def api_update_schedule_color(schedule_id):
