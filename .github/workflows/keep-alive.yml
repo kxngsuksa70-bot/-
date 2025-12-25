@@ -1,0 +1,34 @@
+name: Keep-Alive Health Check
+
+# รันทุก 4 วัน เพื่อป้องกัน Supabase pause (7 วันไม่มี activity)
+on:
+  schedule:
+    # ทุกเที่ยงคืน ทุก 4 วัน (0 0 */4 * *)
+    - cron: '0 0 */4 * *'
+  
+  # สามารถรันด้วยตนเองได้
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Ping Railway Application
+        run: |
+          echo "🔄 Pinging Railway app..."
+          curl -f https://web-production-692c8.up.railway.app/ || echo "⚠️ App is down"
+          
+      - name: Query Supabase Database
+        run: |
+          echo "🔄 Querying Supabase to keep it active..."
+          # Simple query ไปยัง Supabase API
+          curl -f -X GET 'https://hbbqwcesmwqnfgkmdayp.supabase.co/rest/v1/teachers?select=id&limit=1' \
+            -H 'apikey: ${{ secrets.SUPABASE_KEY }}' \
+            -H 'Authorization: Bearer ${{ secrets.SUPABASE_KEY }}' \
+            || echo "⚠️ Database query failed"
+          
+      - name: Success Notification
+        run: |
+          echo "✅ Keep-alive completed!"
+          echo "📅 Next run: in 4 days"
