@@ -16,8 +16,8 @@ from io import BytesIO
 # Load environment variables
 load_dotenv()
 
-# Import PostgreSQL database
-import database_postgres as db
+# Import Supabase database (REST API - works with Railway)
+import database_supabase as db
 import database_pwa_helpers as db_helpers
 
 app = Flask(__name__, static_folder='static', static_url_path='')
