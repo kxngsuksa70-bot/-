@@ -82,7 +82,14 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
             }
 
             alert('✅ บันทึกข้อมูลเรียบร้อย');
-            window.location.href = '/teacher-dashboard.html';
+
+            // Reload profile to show updated picture
+            await loadProfile();
+
+            // Optional: redirect after a delay to see the updated picture
+            // setTimeout(() => {
+            //     window.location.href = '/teacher-dashboard.html';
+            // }, 1000);
         } else {
             alert('Error: ' + (result.error || 'Failed to update'));
         }
