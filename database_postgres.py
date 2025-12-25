@@ -3,17 +3,35 @@ from psycopg2.extras import RealDictCursor
 from psycopg2 import pool
 import os
 from dotenv import load_dotenv
+import socket
 
 # Load environment variables
 load_dotenv()
 
+# Resolve hostname to IPv4 address to avoid IPv6 issues on Railway
+def get_ipv4_address(hostname):
+    """Resolve hostname to IPv4 address only"""
+    try:
+        # Force IPv4 resolution
+        addr_info = socket.getaddrinfo(hostname, None, socket.AF_INET)
+        if addr_info:
+            return addr_info[0][4][0]  # Return first IPv4 address
+    except Exception as e:
+        print(f"Warning: Could not resolve {hostname} to IPv4, using hostname: {e}")
+    return hostname
+
+# Get Supabase host and resolve to IPv4
+supabase_host = os.environ.get('SUPABASE_HOST', 'localhost')
+resolved_host = get_ipv4_address(supabase_host) if supabase_host != 'localhost' else 'localhost'
+
 # Database configuration from environment variables
 DB_CONFIG = {
-    'host': os.environ.get('SUPABASE_HOST', 'localhost'),
+    'host': resolved_host,
     'port': os.environ.get('SUPABASE_PORT', '5432'),
     'database': os.environ.get('SUPABASE_DB', 'postgres'),
     'user': os.environ.get('SUPABASE_USER', 'postgres'),
     'password': os.environ.get('SUPABASE_PASSWORD', ''),
+    'connect_timeout': 10,  # Add timeout to avoid hanging
 }
 
 # Connection pool for better performance
