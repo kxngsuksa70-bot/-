@@ -559,17 +559,36 @@ def api_teacher_profile():
     elif request.method == 'PUT':
         teacher_id = int(user.id.split(':')[1])
         
-        # Handle file upload if present
-        profile_picture_filename = None
+        # Handle file upload if present - Upload to Supabase Storage
+        profile_picture_url = None
         if 'profile_picture' in request.files:
             file = request.files['profile_picture']
-            if file and file.filename and allowed_file(file.filename):
-                # Get file extension
-                ext = file.filename.rsplit('.', 1)[1].lower()
-                filename = f"teacher_{teacher_id}.{ext}"
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(file_path)
-                profile_picture_filename = filename
+            if file and file.filename:
+                # Validate file type
+                allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+                if '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in allowed_extensions:
+                    try:
+                        import uuid
+                        ext = file.filename.rsplit('.', 1)[1].lower()
+                        filename = f"teacher_{teacher_id}_{uuid.uuid4().hex}.{ext}"
+                        
+                        # Read file content
+                        file_content = file.read()
+                        
+                        # Upload to Supabase Storage
+                        client = db.get_supabase_client()
+                        storage_response = client.storage.from_('profile-pictures').upload(
+                            path=filename,
+                            file=file_content,
+                            file_options={"content-type": file.content_type, "upsert": "true"}
+                        )
+                        
+                        # Get public URL
+                        profile_picture_url = client.storage.from_('profile-pictures').get_public_url(filename)
+                        print(f"✅ Uploaded profile picture to Supabase Storage: {profile_picture_url}")
+                        
+                    except Exception as e:
+                        print(f"❌ Error uploading to Supabase Storage: {e}")
         
         # Get form data
         username = request.form.get('username')
@@ -588,15 +607,17 @@ def api_teacher_profile():
             room
         )
         
-        # Update profile picture in database if uploaded
-        if result and profile_picture_filename:
+        # Update profile picture URL in database if uploaded
+        if result and profile_picture_url:
             try:
                 client = db.get_supabase_client()
                 client.table('teachers').update({
-                    'profile_picture': profile_picture_filename
+                    'profile_picture': profile_picture_url
                 }).eq('id', teacher_id).execute()
+                print(f"✅ Updated profile_picture in database: {profile_picture_url}")
             except Exception as e:
-                print(f"Error updating profile picture: {e}")
+                print(f"❌ Error updating profile picture in database: {e}")
+
 
         
         if result:
