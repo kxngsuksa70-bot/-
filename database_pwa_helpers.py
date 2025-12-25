@@ -1,6 +1,6 @@
-import mysql.connector
-from mysql.connector import Error
-from database import get_connection
+import psycopg2
+from psycopg2 import Error
+from database_postgres import get_connection
 
 def get_teacher_by_id(teacher_id):
     """Get teacher by ID"""
@@ -9,14 +9,15 @@ def get_teacher_by_id(teacher_id):
         return None
     
     try:
-        cursor = connection.cursor(dictionary=True)
+        from psycopg2.extras import RealDictCursor
+        cursor = connection.cursor(cursor_factory=RealDictCursor)
         cursor.execute("SELECT * FROM teachers WHERE id = %s", (teacher_id,))
         return cursor.fetchone()
     except Error as e:
         print(f"Error getting teacher by ID: {e}")
         return None
     finally:
-        if connection and connection.is_connected():
+        if connection:
             cursor.close()
             connection.close()
 
@@ -27,14 +28,15 @@ def get_teacher_by_username(username):
         return None
     
     try:
-        cursor = connection.cursor(dictionary=True)
+        from psycopg2.extras import RealDictCursor
+        cursor = connection.cursor(cursor_factory=RealDictCursor)
         cursor.execute("SELECT * FROM teachers WHERE username = %s", (username,))
         return cursor.fetchone()
     except Error as e:
         print(f"Error getting teacher by username: {e}")
         return None
     finally:
-        if connection and connection.is_connected():
+        if connection:
             cursor.close()
             connection.close()
 
@@ -45,14 +47,15 @@ def get_student_by_id(student_id):
         return None
     
     try:
-        cursor = connection.cursor(dictionary=True)
+        from psycopg2.extras import RealDictCursor
+        cursor = connection.cursor(cursor_factory=RealDictCursor)
         cursor.execute("SELECT * FROM students WHERE id = %s", (student_id,))
         return cursor.fetchone()
     except Error as e:
         print(f"Error getting student by ID: {e}")
         return None
     finally:
-        if connection and connection.is_connected():
+        if connection:
             cursor.close()
             connection.close()
 
@@ -63,13 +66,14 @@ def get_student_by_username(username):
         return None
     
     try:
-        cursor = connection.cursor(dictionary=True)
+        from psycopg2.extras import RealDictCursor
+        cursor = connection.cursor(cursor_factory=RealDictCursor)
         cursor.execute("SELECT * FROM students WHERE username = %s", (username,))
         return cursor.fetchone()
     except Error as e:
         print(f"Error getting student by username: {e}")
         return None
     finally:
-        if connection and connection.is_connected():
+        if connection:
             cursor.close()
             connection.close()
