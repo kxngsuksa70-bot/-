@@ -35,8 +35,18 @@ async function loadTeacherProfile() {
             document.getElementById('teacherContact').textContent = teacher.contact || '-';
 
             // Load profile picture
+            const profilePicElement = document.getElementById('teacherProfilePic');
             if (teacher.profile_picture) {
-                document.getElementById('teacherProfilePic').src = `/images/profiles/${teacher.profile_picture}`;
+                // Check if it's a Supabase Storage URL (starts with https://)
+                if (teacher.profile_picture.startsWith('http://') || teacher.profile_picture.startsWith('https://')) {
+                    profilePicElement.src = teacher.profile_picture;
+                } else {
+                    // Local path (old data) - show default avatar
+                    profilePicElement.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(teacher.name || 'Teacher') + '&size=200&background=4285F4&color=fff';
+                }
+            } else {
+                // No profile picture - show default avatar
+                profilePicElement.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(teacher.name || 'Teacher') + '&size=200&background=4285F4&color=fff';
             }
 
             // Load schedule to get classrooms
