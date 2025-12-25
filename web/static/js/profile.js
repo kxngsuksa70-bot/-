@@ -27,7 +27,16 @@ async function loadProfile() {
 
         // Load profile picture
         if (data.profile_picture) {
-            document.getElementById('profilePicPreview').src = `/images/profiles/${data.profile_picture}`;
+            // Check if it's a Supabase Storage URL (starts with https://)
+            if (data.profile_picture.startsWith('http://') || data.profile_picture.startsWith('https://')) {
+                document.getElementById('profilePicPreview').src = data.profile_picture;
+            } else {
+                // Local path (old data) - show default avatar
+                document.getElementById('profilePicPreview').src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.name || 'Teacher') + '&size=200&background=4285F4&color=fff';
+            }
+        } else {
+            // No profile picture - show default avatar
+            document.getElementById('profilePicPreview').src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.name || 'Teacher') + '&size=200&background=4285F4&color=fff';
         }
 
     } catch (error) {
