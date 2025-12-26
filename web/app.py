@@ -400,46 +400,35 @@ def api_manage_teacher(teacher_id):
     
     elif request.method == 'PUT':
         data = request.get_json()
-        conn = db.get_connection()
-        if not conn:
-            return jsonify({'success': False, 'error': 'Database error'}), 500
         
         try:
-            cursor = conn.cursor()
+            client = db.get_supabase_client()
             username = data.get('username')
             
             # Check username conflict
             if username:
-                cursor.execute("SELECT id FROM teachers WHERE username = %s AND id != %s", 
-                             (username, teacher_id))
-                if cursor.fetchone():
-                    cursor.close()
-                    conn.close()
+                existing = client.table('teachers').select('id').eq('username', username).neq('id', teacher_id).execute()
+                if existing.data:
                     return jsonify({'success': False, 'error': 'Username already taken'}), 400
             
-            # Update
+            # Prepare update data
+            update_data = {
+                'username': username,
+                'name': data['name'],
+                'subject': data.get('subject'),
+                'contact': data.get('contact'),
+                'room': data.get('room')
+            }
+            
+            # Hash password if provided
             if data.get('password'):
-                # Hash the password before storing
                 import bcrypt
                 hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-                
-                cursor.execute("""
-                    UPDATE teachers 
-                    SET username=%s, password=%s, name=%s, subject=%s, contact=%s, room=%s 
-                    WHERE id=%s
-                """, (username, hashed_password, data['name'], data.get('subject'), 
-                     data.get('contact'), data.get('room'), teacher_id))
-            else:
-                cursor.execute("""
-                    UPDATE teachers 
-                    SET username=%s, name=%s, subject=%s, contact=%s, room=%s 
-                    WHERE id=%s
-                """, (username, data['name'], data.get('subject'), 
-                     data.get('contact'), data.get('room'), teacher_id))
+                update_data['password'] = hashed_password
             
-            conn.commit()
-            cursor.close()
-            conn.close()
+            # Update
+            client.table('teachers').update(update_data).eq('id', teacher_id).execute()
+            
             return jsonify({'success': True, 'message': 'Teacher updated'})
         except Exception as e:
             print(f"Error: {e}")
@@ -469,44 +458,32 @@ def api_manage_student(student_id):
     
     elif request.method == 'PUT':
         data = request.get_json()
-        conn = db.get_connection()
-        if not conn:
-            return jsonify({'success': False, 'error': 'Database error'}), 500
         
         try:
-            cursor = conn.cursor()
+            client = db.get_supabase_client()
             username = data.get('username')
             
             # Check username conflict
             if username:
-                cursor.execute("SELECT id FROM students WHERE username = %s AND id != %s", 
-                             (username, student_id))
-                if cursor.fetchone():
-                    cursor.close()
-                    conn.close()
+                existing = client.table('students').select('id').eq('username', username).neq('id', student_id).execute()
+                if existing.data:
                     return jsonify({'success': False, 'error': 'Username already taken'}), 400
             
-            # Update
+            # Prepare update data
+            update_data = {
+                'username': username,
+                'name': data['name']
+            }
+            
+            # Hash password if provided
             if data.get('password'):
-                # Hash the password before storing
                 import bcrypt
                 hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-                
-                cursor.execute("""
-                    UPDATE students 
-                    SET username=%s, password=%s, name=%s 
-                    WHERE id=%s
-                """, (username, hashed_password, data['name'], student_id))
-            else:
-                cursor.execute("""
-                    UPDATE students 
-                    SET username=%s, name=%s 
-                    WHERE id=%s
-                """, (username, data['name'], student_id))
+                update_data['password'] = hashed_password
             
-            conn.commit()
-            cursor.close()
-            conn.close()
+            # Update
+            client.table('students').update(update_data).eq('id', student_id).execute()
+            
             return jsonify({'success': True, 'message': 'Student updated'})
         except Exception as e:
             print(f"Error: {e}")
