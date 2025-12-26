@@ -115,8 +115,18 @@
                     document.getElementById('teacherSubject').textContent = teacher.subject || '-';
                     document.getElementById('teacherContact').textContent = teacher.contact || '-';
 
+                    // Load profile picture - Support Supabase Storage URLs
                     if (teacher.profile_picture) {
-                        document.getElementById('teacherProfilePic').src = `/images/profiles/${teacher.profile_picture}`;
+                        // Check if it's a Supabase Storage URL (starts with https://)
+                        if (teacher.profile_picture.startsWith('http://') || teacher.profile_picture.startsWith('https://')) {
+                            document.getElementById('teacherProfilePic').src = teacher.profile_picture;
+                        } else {
+                            // Local path (old data) - show default avatar
+                            document.getElementById('teacherProfilePic').src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(teacher.name || 'Teacher') + '&size=80&background=4285F4&color=fff';
+                        }
+                    } else {
+                        // No profile picture - show default avatar
+                        document.getElementById('teacherProfilePic').src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(teacher.name || 'Teacher') + '&size=80&background=4285F4&color=fff';
                     }
                 }
 
@@ -125,7 +135,7 @@
                 const data = await response.json();
 
                 console.log('Schedule data:', data);
-                
+
                 // Aggregate unique classrooms from schedule
                 const classrooms = new Set();
                 data.forEach(item => {
