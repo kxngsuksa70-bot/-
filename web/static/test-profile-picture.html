@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Test Profile Picture</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1a1a2e;
+            color: white;
+        }
+
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #16213e;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #4285F4;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #0f3460;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #4285F4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #357ae8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="test-container">
+        <h1>🔍 Test Profile Picture Loading</h1>
+
+        <div id="imageTest">
+            <h3>1. ทดสอบโหลดรูปโดยตรง:</h3>
+            <p>URL จาก Supabase Storage:</p>
+            <img id="testImage" src="" alt="Test Image">
+            <div id="imageStatus" class="result"></div>
+        </div>
+
+        <div>
+            <h3>2. ทดสอบดึงข้อมูลจาก API:</h3>
+            <button onclick="testAPI()">Test API</button>
+            <div id="apiResult" class="result"></div>
+        </div>
+
+        <div>
+            <h3>3. ทดสอบโหลดรูปจาก API:</h3>
+            <button onclick="loadProfilePicture()">Load Profile Picture</button>
+            <div style="margin-top: 20px;">
+                <img id="profilePic" src="" alt="Profile Picture">
+            </div>
+            <div id="profileResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Test 1: Load image directly with known URL
+        const testImageUrl = 'https://hbbqwcesmwqnfgkmdayp.supabase.co/storage/v1/object/public/profile-pictures/teacher_1_57f8fa0921d09ca672e5.1e11e64f44.png';
+
+        const testImg = document.getElementById('testImage');
+        testImg.src = testImageUrl;
+
+        testImg.onload = function () {
+            document.getElementById('imageStatus').innerHTML =
+                '✅ <strong>สำเร็จ!</strong> รูปโหลดได้จาก Supabase Storage<br>' +
+                'URL: ' + testImageUrl;
+        };
+
+        testImg.onerror = function () {
+            document.getElementById('imageStatus').innerHTML =
+                '❌ <strong>ล้มเหลว!</strong> ไม่สามารถโหลดรูปได้<br>' +
+                'URL: ' + testImageUrl + '<br>' +
+                'ปัญหา: URL ไม่ถูกต้องหรือไฟล์ไม่มีอยู่';
+        };
+
+        // Test 2: Fetch from API
+        function testAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.innerHTML = '⏳ กำลังดึงข้อมูล...';
+
+            fetch('/api/profile')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('API Response:', data);
+                    resultDiv.innerHTML =
+                        '✅ <strong>API ทำงานได้!</strong><br>' +
+                        '<strong>profile_picture:</strong> ' + (data.profile_picture || 'null') + '<br>' +
+                        '<strong>name:</strong> ' + data.name + '<br>' +
+                        '<strong>username:</strong> ' + data.username;
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = '❌ <strong>Error:</strong> ' + error.message;
+                });
+        }
+
+        // Test 3: Load profile picture from API
+        function loadProfilePicture() {
+            const resultDiv = document.getElementById('profileResult');
+            const profilePic = document.getElementById('profilePic');
+
+            resultDiv.innerHTML = '⏳ กำลังโหลด...';
+
+            fetch('/api/profile')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Profile data:', data);
+
+                    if (data.profile_picture) {
+                        if (data.profile_picture.startsWith('http://') || data.profile_picture.startsWith('https://')) {
+                            profilePic.src = data.profile_picture;
+                            resultDiv.innerHTML =
+                                '✅ <strong>พบ URL!</strong> กำลังโหลดรูป...<br>' +
+                                'URL: ' + data.profile_picture;
+
+                            profilePic.onload = function () {
+                                resultDiv.innerHTML += '<br>✅ <strong>โหลดรูปสำเร็จ!</strong>';
+                            };
+
+                            profilePic.onerror = function () {
+                                resultDiv.innerHTML += '<br>❌ <strong>โหลดรูปล้มเหลว!</strong> (URL ถูกต้องแต่ไฟล์ไม่พบ)';
+                            };
+                        } else {
+                            resultDiv.innerHTML =
+                                '⚠️ <strong>Local path detected!</strong><br>' +
+                                'Value: ' + data.profile_picture + '<br>' +
+                                'นี่คือ path เก่า ไม่ใช่ Supabase URL';
+
+                            // Show default avatar
+                            profilePic.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.name || 'Teacher') + '&size=200&background=4285F4&color=fff';
+                        }
+                    } else {
+                        resultDiv.innerHTML = '⚠️ <strong>No profile_picture</strong> in database';
+                        profilePic.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.name || 'Teacher') + '&size=200&background=4285F4&color=fff';
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = '❌ <strong>Error:</strong> ' + error.message;
+                });
+        }
+    </script>
+</body>
+
+</html>
