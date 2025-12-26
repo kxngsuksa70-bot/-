@@ -301,10 +301,9 @@ function renderTeacherGrid(schedule) {
     });
 }
 
-// Show class details popup with color picker
+// Show class details popup (read-only for students)
 function showClassDetailsInStudentView(classItem) {
     const DAY_NAMES_TH = { 'Mon': 'จันทร์', 'Tue': 'อังคาร', 'Wed': 'พุธ', 'Thu': 'พฤหัสบดี', 'Fri': 'ศุกร์', 'Sat': 'เสาร์' };
-    const currentColor = classItem.color || '#4285F4';
 
     const modal = `
         <div id="classDetailModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px" onclick="this.remove()">
@@ -316,34 +315,15 @@ function showClassDetailsInStudentView(classItem) {
                 <p style="margin:10px 0"><strong>ห้อง:</strong> ${classItem.classroom || '-'}</p>
                 <p style="margin:10px 0"><strong>ระยะเวลา:</strong> ${classItem.duration} ชั่วโมง</p>
                 
-                <!-- Color Picker Section -->
-                <div style="margin-top:25px;padding-top:20px;border-top:1px solid rgba(187,134,252,0.3)">
-                    <p style="margin-bottom:10px"><strong>🎨 เปลี่ยนสีรายวิชา:</strong></p>
-                    <div style="display:flex;gap:10px;align-items:center">
-                        <input type="color" id="colorPickerStudent" value="${currentColor}" style="width:60px;height:40px;border:2px solid var(--primary);border-radius:8px;cursor:pointer">
-                        <div id="colorPreviewStudent" style="flex:1;height:40px;background:${currentColor};border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:12px">${currentColor.toUpperCase()}</div>
-                    </div>
-                    <button class="btn btn-primary" id="saveColorBtn" style="margin-top:15px;width:100%" onclick="saveScheduleColorInStudentView(${classItem.id}, document.getElementById('colorPickerStudent').value)">
-                        💾 บันทึกสี
-                    </button>
-                </div>
-                
-                <button class="btn btn-secondary" style="margin-top:15px;width:100%" onclick="this.closest('#classDetailModal').remove()">ปิด</button>
+                <button class="btn btn-secondary" style="margin-top:20px;width:100%" onclick="this.closest('#classDetailModal').remove()">ปิด</button>
             </div>
         </div>
     `;
     document.body.insertAdjacentHTML('beforeend', modal);
-
-    // Update color preview when color picker changes
-    document.getElementById('colorPickerStudent').addEventListener('input', (e) => {
-        const preview = document.getElementById('colorPreviewStudent');
-        preview.style.background = e.target.value;
-        preview.textContent = e.target.value.toUpperCase();
-    });
 }
 
-// Save schedule color to database (from student view)
-async function saveScheduleColorInStudentView(scheduleId, newColor) {
+// (Removed) Color picker functionality - students can only view class details
+/*async function saveScheduleColorInStudentView(scheduleId, newColor) {
     try {
         const response = await fetch(`/api/schedule/${scheduleId}/color`, {
             method: 'PUT',
@@ -378,8 +358,8 @@ async function saveScheduleColorInStudentView(scheduleId, newColor) {
     }
 }
 
-// Toast notification helper (for student view)
-function showToastInStudentView(message, type = 'info') {
+// (Removed) Toast notification - no longer needed
+/*function showToastInStudentView(message, type = 'info') {
     const bgColor = type === 'success' ? '#0F9D58' : type === 'error' ? '#CF6679' : '#4285F4';
     const toast = document.createElement('div');
     toast.style.cssText = `
@@ -402,4 +382,6 @@ function showToastInStudentView(message, type = 'info') {
         toast.style.animation = 'slideOut 0.3s ease-out';
         setTimeout(() => toast.remove(), 300);
     }, 2500);
-}
+}*/
+// Export Schedule to PDF
+// Export Schedule to PDF - FULL PAGE VERSION
