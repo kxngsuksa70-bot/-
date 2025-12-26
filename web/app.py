@@ -420,11 +420,9 @@ def api_manage_teacher(teacher_id):
                 'room': data.get('room')
             }
             
-            # Hash password if provided
+            # Store password as plain text (SECURITY WARNING: Not recommended!)
             if data.get('password'):
-                import bcrypt
-                hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-                update_data['password'] = hashed_password
+                update_data['password'] = data['password']
             
             # Update
             client.table('teachers').update(update_data).eq('id', teacher_id).execute()
@@ -475,11 +473,9 @@ def api_manage_student(student_id):
                 'name': data['name']
             }
             
-            # Hash password if provided
+            # Store password as plain text (SECURITY WARNING: Not recommended!)
             if data.get('password'):
-                import bcrypt
-                hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-                update_data['password'] = hashed_password
+                update_data['password'] = data['password']
             
             # Update
             client.table('students').update(update_data).eq('id', student_id).execute()
