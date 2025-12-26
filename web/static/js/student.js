@@ -143,10 +143,20 @@ function viewTeacherSchedule(teacherId) {
 
     const schedule = teacher.schedule || [];
 
-    // Get profile picture path
-    const profilePic = teacher.profile_picture
-        ? `/images/profiles/${teacher.profile_picture}`
-        : `data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22%3E%3Ccircle fill=%22%23e0e0e0%22 cx=%2240%22 cy=%2240%22 r=%2240%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2230%22 fill=%22%23999%22%3E👤%3C/text%3E%3C/svg%3E`;
+    // Get profile picture path - Support Supabase Storage URLs
+    let profilePic;
+    if (teacher.profile_picture) {
+        // Check if it's a Supabase Storage URL (starts with https://)
+        if (teacher.profile_picture.startsWith('http://') || teacher.profile_picture.startsWith('https://')) {
+            profilePic = teacher.profile_picture;
+        } else {
+            // Local path (old data) - show default avatar
+            profilePic = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(teacher.name || 'Teacher') + '&size=80&background=BB86FC&color=fff';
+        }
+    } else {
+        // No profile picture - show default avatar
+        profilePic = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(teacher.name || 'Teacher') + '&size=80&background=BB86FC&color=fff';
+    }
 
     const modal = `
         <div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px" onclick="this.remove()">
