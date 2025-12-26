@@ -144,18 +144,24 @@ function viewTeacherSchedule(teacherId) {
     const schedule = teacher.schedule || [];
 
     // Get profile picture path - Support Supabase Storage URLs
+    console.log('🔍 [Student Modal] Loading profile picture for:', teacher.name);
+    console.log('🔍 [Student Modal] teacher.profile_picture =', teacher.profile_picture);
+
     let profilePic;
     if (teacher.profile_picture) {
         // Check if it's a Supabase Storage URL (starts with https://)
         if (teacher.profile_picture.startsWith('http://') || teacher.profile_picture.startsWith('https://')) {
             profilePic = teacher.profile_picture;
+            console.log('✅ [Student Modal] Using Supabase URL:', profilePic);
         } else {
             // Local path (old data) - show default avatar
             profilePic = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(teacher.name || 'Teacher') + '&size=80&background=BB86FC&color=fff';
+            console.log('⚠️ [Student Modal] Local path detected, using default avatar');
         }
     } else {
         // No profile picture - show default avatar
         profilePic = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(teacher.name || 'Teacher') + '&size=80&background=BB86FC&color=fff';
+        console.log('⚠️ [Student Modal] No profile_picture, using default avatar');
     }
 
     const modal = `
@@ -397,5 +403,3 @@ function showToastInStudentView(message, type = 'info') {
         setTimeout(() => toast.remove(), 300);
     }, 2500);
 }
-// Export Schedule to PDF
-// Export Schedule to PDF - FULL PAGE VERSION
