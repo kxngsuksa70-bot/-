@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Profile Picture</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1a1a2e;
+            color: white;
+        }
+
+        .debug-box {
+            background: #16213e;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #4285F4;
+        }
+
+        .success {
+            border-left-color: #0F9D58;
+        }
+
+        .error {
+            border-left-color: #CF6679;
+        }
+
+        .warning {
+            border-left-color: #F4B400;
+        }
+
+        img {
+            max-width: 200px;
+            border: 3px solid #4285F4;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        button {
+            background: #4285F4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #357ae8;
+        }
+
+        pre {
+            background: #0f1419;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔍 Profile Picture Debug Tool</h1>
+
+    <button onclick="runAllTests()">🚀 Run All Tests</button>
+    <button onclick="location.reload()">🔄 Reload</button>
+
+    <div id="results"></div>
+
+    <script>
+        async function runAllTests() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h2>Running tests...</h2>';
+
+            // Test 1: Check if logged in
+            await testAuth();
+
+            // Test 2: Fetch profile data
+            await testProfileAPI();
+
+            // Test 3: Test image URL directly
+            await testImageURL();
+
+            // Test 4: Check localStorage
+            await testLocalStorage();
+        }
+
+        async function testAuth() {
+            const div = document.getElementById('results');
+
+            const user = localStorage.getItem('user');
+            const role = localStorage.getItem('role');
+
+            if (user && role) {
+                div.innerHTML += `
+                    <div class="debug-box success">
+                        <h3>✅ Test 1: Authentication</h3>
+                        <p><strong>Status:</strong> Logged in</p>
+                        <p><strong>Role:</strong> ${role}</p>
+                        <p><strong>User:</strong></p>
+                        <pre>${JSON.stringify(JSON.parse(user), null, 2)}</pre>
+                    </div>
+                `;
+            } else {
+                div.innerHTML += `
+                    <div class="debug-box error">
+                        <h3>❌ Test 1: Authentication</h3>
+                        <p><strong>Status:</strong> NOT logged in</p>
+                        <p>Please login first!</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testProfileAPI() {
+            const div = document.getElementById('results');
+
+            try {
+                const response = await fetch('/api/profile');
+                const data = await response.json();
+
+                console.log('Profile API Response:', data);
+
+                const hasProfilePic = !!data.profile_picture;
+                const isURL = data.profile_picture && (data.profile_picture.startsWith('http://') || data.profile_picture.startsWith('https://'));
+
+                div.innerHTML += `
+                    <div class="debug-box ${hasProfilePic ? 'success' : 'warning'}">
+                        <h3>${hasProfilePic ? '✅' : '⚠️'} Test 2: Profile API</h3>
+                        <p><strong>Status:</strong> ${response.ok ? 'Success' : 'Failed'}</p>
+                        <p><strong>HTTP Status:</strong> ${response.status}</p>
+                        <p><strong>profile_picture value:</strong></p>
+                        <pre>${data.profile_picture || 'null'}</pre>
+                        <p><strong>Is URL?</strong> ${isURL ? 'YES ✅' : 'NO ❌'}</p>
+                        <p><strong>Full Response:</strong></p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+
+                // Store for next test
+                window.testProfilePicture = data.profile_picture;
+
+            } catch (error) {
+                div.innerHTML += `
+                    <div class="debug-box error">
+                        <h3>❌ Test 2: Profile API</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testImageURL() {
+            const div = document.getElementById('results');
+            const url = window.testProfilePicture;
+
+            if (!url) {
+                div.innerHTML += `
+                    <div class="debug-box warning">
+                        <h3>⚠️ Test 3: Image URL Test</h3>
+                        <p>No profile_picture URL to test</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                div.innerHTML += `
+                    <div class="debug-box error">
+                        <h3>❌ Test 3: Image URL Test</h3>
+                        <p><strong>Problem:</strong> Not a valid URL</p>
+                        <p><strong>Value:</strong> ${url}</p>
+                        <p>This looks like a local path. Backend is NOT uploading to Supabase!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Try to load image
+            const img = new Image();
+
+            const loadPromise = new Promise((resolve, reject) => {
+                img.onload = () => resolve(true);
+                img.onerror = () => reject(false);
+                img.src = url;
+            });
+
+            try {
+                await loadPromise;
+
+                div.innerHTML += `
+                    <div class="debug-box success">
+                        <h3>✅ Test 3: Image URL Test</h3>
+                        <p><strong>URL:</strong> ${url}</p>
+                        <p><strong>Status:</strong> Image loaded successfully!</p>
+                        <p><strong>Preview:</strong></p>
+                        <img src="${url}" alt="Profile Picture">
+                    </div>
+                `;
+            } catch {
+                div.innerHTML += `
+                    <div class="debug-box error">
+                        <h3>❌ Test 3: Image URL Test</h3>
+                        <p><strong>URL:</strong> ${url}</p>
+                        <p><strong>Status:</strong> Failed to load image</p>
+                        <p><strong>Possible issues:</strong></p>
+                        <ul>
+                            <li>URL is incorrect</li>
+                            <li>File doesn't exist in Supabase Storage</li>
+                            <li>Bucket permissions incorrect</li>
+                            <li>CORS issue</li>
+                        </ul>
+                        <p>Try opening URL directly: <a href="${url}" target="_blank">${url}</a></p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testLocalStorage() {
+            const div = document.getElementById('results');
+
+            div.innerHTML += `
+                <div class="debug-box">
+                    <h3>📊 Test 4: Browser Info</h3>
+                    <p><strong>User Agent:</strong> ${navigator.userAgent}</p>
+                    <p><strong>Current URL:</strong> ${window.location.href}</p>
+                    <p><strong>LocalStorage keys:</strong></p>
+                    <pre>${JSON.stringify(Object.keys(localStorage), null, 2)}</pre>
+                </div>
+            `;
+        }
+
+        // Auto-run on load
+        document.addEventListener('DOMContentLoaded', () => {
+            runAllTests();
+        });
+    </script>
+</body>
+
+</html>
