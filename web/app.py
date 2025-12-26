@@ -419,11 +419,15 @@ def api_manage_teacher(teacher_id):
             
             # Update
             if data.get('password'):
+                # Hash the password before storing
+                import bcrypt
+                hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                
                 cursor.execute("""
                     UPDATE teachers 
                     SET username=%s, password=%s, name=%s, subject=%s, contact=%s, room=%s 
                     WHERE id=%s
-                """, (username, data['password'], data['name'], data.get('subject'), 
+                """, (username, hashed_password, data['name'], data.get('subject'), 
                      data.get('contact'), data.get('room'), teacher_id))
             else:
                 cursor.execute("""
@@ -484,11 +488,15 @@ def api_manage_student(student_id):
             
             # Update
             if data.get('password'):
+                # Hash the password before storing
+                import bcrypt
+                hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                
                 cursor.execute("""
                     UPDATE students 
                     SET username=%s, password=%s, name=%s 
                     WHERE id=%s
-                """, (username, data['password'], data['name'], student_id))
+                """, (username, hashed_password, data['name'], student_id))
             else:
                 cursor.execute("""
                     UPDATE students 
