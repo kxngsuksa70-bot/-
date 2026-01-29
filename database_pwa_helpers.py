@@ -1,4 +1,4 @@
-from database_supabase import get_supabase_client
+from database_sqlite import get_supabase_client
 
 def get_teacher_by_id(teacher_id):
     """Get teacher by ID"""

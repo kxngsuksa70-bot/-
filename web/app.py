@@ -16,9 +16,9 @@ from io import BytesIO
 # Load environment variables
 load_dotenv()
 
-# Import Supabase database (REST API - works with Railway)
-import database_supabase as db
-import database_pwa_helpers as db_helpers
+# Import SQLite database (Emergency Local Mode)
+import database_sqlite as db
+import database_sqlite as db_helpers
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 
@@ -615,9 +615,9 @@ if __name__ == '__main__':
     # Initialize database
     print("Initializing database connection...")
     if db.init_database():
-        print("✅ Database initialized successfully")
+        print("Database initialized successfully")
     else:
-        print("⚠️  Warning: Database initialization failed")
+        print("Warning: Database initialization failed")
     
     # Get port from environment or default to 5000
     port = int(os.environ.get('PORT', 5000))
