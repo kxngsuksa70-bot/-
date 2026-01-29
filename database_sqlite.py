@@ -167,8 +167,23 @@ def verify_teacher(username, password):
     if not conn: return False
     try:
         cursor = conn.cursor()
-        cursor.execute("SELECT id FROM teachers WHERE username = ? AND password = ?", (username, password))
-        return cursor.fetchone() is not None
+        print(f"DEBUG: Checking login for user='{username}' pass='{password}'")
+        cursor.execute("SELECT id, password FROM teachers WHERE username = ?", (username,))
+        row = cursor.fetchone()
+        if row:
+            print(f"DEBUG: Found user in DB. DB_pass='{row['password']}'")
+            if row['password'] == password:
+                print("DEBUG: Password MATCH!")
+                return True
+            else:
+                print("DEBUG: Password MISMATCH!")
+                return False
+        else:
+            print("DEBUG: User NOT FOUND")
+            return False
+    except Exception as e:
+        print(f"DEBUG Error: {e}")
+        return False
     finally:
         conn.close()
 
